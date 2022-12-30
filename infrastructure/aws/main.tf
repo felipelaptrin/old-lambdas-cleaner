@@ -184,5 +184,17 @@ resource "aws_iam_role" "lambda" {
 ##################
 resource "aws_cloudwatch_event_target" "this" {
   arn  = module.lambda_function.lambda_function_arn
-  rule = "lambda-rule"
+  rule = module.eventbridge.eventbridge_rule_ids["lambda"]
+}
+
+
+##################
+## LAMBDA
+##################
+resource "aws_lambda_permission" "this" {
+  statement_id  = "AllowExecutionFromCloudWatch"
+  action        = "lambda:InvokeFunction"
+  function_name = module.lambda_function.lambda_function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = module.eventbridge.eventbridge_rule_arns["lambda"]
 }
