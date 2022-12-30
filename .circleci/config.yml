@@ -45,7 +45,7 @@ jobs:
       - run:
           name: Update function code
           command: |
-            cd /tmp/workspace
+            cd /tmp
             aws s3 cp \
                 old-lambdas-cleaner.zip \
                 s3://<< parameters.environment >>-felipe-trindade-lambdas/old-lambdas-cleaner.zip
