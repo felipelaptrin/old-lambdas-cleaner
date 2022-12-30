@@ -24,13 +24,13 @@ jobs:
             cd venv/lib/python3.9/site-packages
             zip -r ../../../../old-lambdas-cleaner.zip .
             cd ../../../../
-            zip -g old-lambdas-cleaner.zip *.py
+            zip -g /tmp/old-lambdas-cleaner.zip *.py
       - store_artifacts:
-          path: old-lambdas-cleaner.zip
+          path: /tmp/old-lambdas-cleaner.zip
       - persist_to_workspace:
-          root: /tmp/workspace
+          root: .
           paths:
-            - lambda/old-lambdas-cleaner.zip
+            - /tmp/old-lambdas-cleaner.zip
 
   deploy-lambda-to-environment:
     executor: aws-cli/default
@@ -39,7 +39,7 @@ jobs:
         type: string
     steps:
       - attach_workspace:
-          at: /tmp/workspace
+          at: /tmp/old-lambdas-cleaner.zip
       - aws-cli/install:
           version: latest
       - run:
