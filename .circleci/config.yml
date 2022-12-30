@@ -1,0 +1,69 @@
+version: 2.1
+
+orbs:
+  aws-cli: circleci/aws-cli@3.1.3
+
+executors:
+  docker-python:
+    docker:
+      - image: circleci/python:3.9
+    resource_class: small
+
+jobs:
+  build-lambda:
+    executor: docker-python
+    steps:
+      - checkout
+      - run:
+          name: Create a zip file with the Lambda function
+          command: |
+            python -m venv venv
+            source venv/bin/activate
+            pip install -r requirements.txt
+            cd venv/lib/python3.9/site-packages
+            zip -r ../../../../old-lambdas-cleaner.zip .
+            cd ../../../../
+            zip -g old-lambdas-cleaner.zip *.py
+      - store_artifacts:
+          path: old-lambdas-cleaner.zip
+      - persist_to_workspace:
+          root: .
+          paths:
+            - old-lambdas-cleaner.zip
+
+  deploy-lambda-to-environment:
+    executor: aws-cli/default
+    parameters:
+      environment:
+        type: string
+    steps:
+      - attach_workspace:
+          at: .
+      - aws-cli/install:
+          version: latest
+      - run:
+          name: Update function code
+          command: |
+            export AWS_DEFAULT_REGION=us-west-2
+            aws s3 cp \
+                old-lambdas-cleaner.zip \
+                s3://<< parameters.environment >>-felipe-trindade-lambdas/old-lambdas-cleaner.zip
+            aws lambda update-function-code \
+                --function-name old-lambdas-cleaner \
+                --s3-bucket << parameters.environment >>-felipe-trindade-lambdas \
+                --s3-key old-lambdas-cleaner.zip
+
+workflows:
+  build-and-deploy:
+    jobs:
+      - build-lambda
+      - deploy-lambda-to-environment:
+          name: deploy-to-dev
+          environment: dev
+          requires:
+            - build-lambda
+          context:
+            - argocd-dev
+          filters:
+            branches:
+              only: main
