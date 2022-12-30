@@ -56,6 +56,3 @@ def lambda_handler(event, context):
     except Exception as e:
         logger.error(e)
         return {"message": "Something went wrong!", "error": str(e)}
-
-
-lambda_handler({"action": "checkOldLambdas"}, "")
