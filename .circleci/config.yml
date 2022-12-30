@@ -28,9 +28,9 @@ jobs:
       - store_artifacts:
           path: /tmp/old-lambdas-cleaner.zip
       - persist_to_workspace:
-          root: .
+          root: /tmp
           paths:
-            - /tmp/old-lambdas-cleaner.zip
+            - old-lambdas-cleaner.zip
 
   deploy-lambda-to-environment:
     executor: aws-cli/default
