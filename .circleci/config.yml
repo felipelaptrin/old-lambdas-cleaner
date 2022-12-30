@@ -19,6 +19,7 @@ jobs:
           command: |
             python -m venv venv
             source venv/bin/activate
+            cd lambda
             pip install -r requirements.txt
             cd venv/lib/python3.9/site-packages
             zip -r ../../../../old-lambdas-cleaner.zip .
