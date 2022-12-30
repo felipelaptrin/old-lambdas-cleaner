@@ -27,9 +27,9 @@ jobs:
             mkdir /tmp/lambda
             zip -g /tmp/lambda/old-lambdas-cleaner.zip *.py
       - persist_to_workspace:
-          root: /tmp
+          root: /tmp/lambda
           paths:
-            - lambda
+            - old-lambdas-cleaner.zip
 
   deploy-lambda-to-environment:
     executor: aws-cli/default
