@@ -32,7 +32,7 @@ module "lambda_function" {
   create_package = false
   s3_existing_package = {
     bucket = local.bucket_name
-    key    = "old-lambdas-cleaner"
+    key    = "old-lambdas-cleaner.zip"
   }
 
   create_role = false
@@ -48,6 +48,33 @@ module "lambda_function" {
   tags = {
     Name      = "old-lambdas-cleaner"
     Terraform = "TRUE"
+  }
+}
+
+##################
+## EVENTBRIDGE
+##################
+module "eventbridge" {
+  source  = "terraform-aws-modules/eventbridge/aws"
+  version = "v1.17.0"
+
+  create_bus = false
+
+  rules = {
+    lambda = {
+      description         = "Trigger Lambda weekly"
+      schedule_expression = "cron(0 10 ? * 2 *)"
+    }
+  }
+
+  targets = {
+    lambda = [
+      {
+        name  = "old-lambdas-cleaner"
+        arn   = module.lambda_function.lambda_function_arn
+        input = jsonencode({ "action" : "checkOldLambdas" })
+      }
+    ]
   }
 }
 
@@ -125,7 +152,7 @@ resource "aws_iam_policy" "lambda" {
 }
 
 
-resource "aws_iam_role" "test_role" {
+resource "aws_iam_role" "lambda" {
   name        = "old-lambdas-cleaner"
   description = "Allows Lambda to block/delete old Lambdas"
 
@@ -150,4 +177,12 @@ resource "aws_iam_role" "test_role" {
   tags = {
     Terraform = "TRUE"
   }
+}
+
+##################
+## EVENTBRIDGE
+##################
+resource "aws_cloudwatch_event_target" "this" {
+  arn  = module.lambda_function.lambda_function_arn
+  rule = "lambda-rule"
 }
