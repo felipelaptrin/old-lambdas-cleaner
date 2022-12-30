@@ -7,11 +7,11 @@ executors:
   docker-python:
     docker:
       - image: circleci/python:3.9
-    resource_class: small
 
 jobs:
   build-lambda:
     executor: docker-python
+    resource_class: small
     steps:
       - checkout
       - run:
@@ -26,8 +26,6 @@ jobs:
             cd ../../../../
             mkdir /tmp/lambda
             zip -g /tmp/lambda/old-lambdas-cleaner.zip *.py
-      - store_artifacts:
-          path: /tmp/old-lambdas-cleaner.zip
       - persist_to_workspace:
           root: /tmp
           paths:
@@ -35,6 +33,7 @@ jobs:
 
   deploy-lambda-to-environment:
     executor: aws-cli/default
+    resource_class: small
     parameters:
       environment:
         type: string
