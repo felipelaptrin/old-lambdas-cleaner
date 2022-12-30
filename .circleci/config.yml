@@ -28,9 +28,9 @@ jobs:
       - store_artifacts:
           path: old-lambdas-cleaner.zip
       - persist_to_workspace:
-          root: .
+          root: /tmp/workspace
           paths:
-            - old-lambdas-cleaner.zip
+            - lambda/old-lambdas-cleaner.zip
 
   deploy-lambda-to-environment:
     executor: aws-cli/default
@@ -39,13 +39,13 @@ jobs:
         type: string
     steps:
       - attach_workspace:
-          at: .
+          at: /tmp/workspace
       - aws-cli/install:
           version: latest
       - run:
           name: Update function code
           command: |
-            cd lambda
+            cd /tmp/workspace
             aws s3 cp \
                 old-lambdas-cleaner.zip \
                 s3://<< parameters.environment >>-felipe-trindade-lambdas/old-lambdas-cleaner.zip
