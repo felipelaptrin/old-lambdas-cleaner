@@ -17,14 +17,14 @@ jobs:
       - run:
           name: Create a zip file with the Lambda function
           command: |
+            mkdir /tmp/lambda
             cd lambda
             python -m venv venv
             source venv/bin/activate
             pip install -r requirements.txt
             cd venv/lib/python3.9/site-packages
-            zip -r ../../../../old-lambdas-cleaner.zip .
+            zip -r /tmp/lambda/old-lambdas-cleaner.zip .
             cd ../../../../
-            mkdir /tmp/lambda
             zip -g /tmp/lambda/old-lambdas-cleaner.zip *.py
       - persist_to_workspace:
           root: /tmp/lambda
