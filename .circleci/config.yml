@@ -17,9 +17,9 @@ jobs:
       - run:
           name: Create a zip file with the Lambda function
           command: |
+            cd lambda
             python -m venv venv
             source venv/bin/activate
-            cd lambda
             pip install -r requirements.txt
             cd venv/lib/python3.9/site-packages
             zip -r ../../../../old-lambdas-cleaner.zip .
@@ -45,7 +45,7 @@ jobs:
       - run:
           name: Update function code
           command: |
-            export AWS_DEFAULT_REGION=us-west-2
+            cd lambda
             aws s3 cp \
                 old-lambdas-cleaner.zip \
                 s3://<< parameters.environment >>-felipe-trindade-lambdas/old-lambdas-cleaner.zip
